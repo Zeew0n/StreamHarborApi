@@ -14,7 +14,11 @@ namespace WorkFlowTM.WebAPI.Controllers
         }
         public IActionResult Method3()
         {
+            int a = 5;
+            int b = 10;
+
             return View();
         }
+
     }
 }
