@@ -12,5 +12,9 @@ namespace WorkFlowTM.WebAPI.Controllers
         {
             return View();
         }
+        public IActionResult Method3()
+        {
+            return View();
+        }
     }
 }
