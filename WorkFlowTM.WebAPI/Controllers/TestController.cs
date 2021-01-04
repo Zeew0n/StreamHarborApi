@@ -8,6 +8,7 @@ namespace WorkFlowTM.WebAPI.Controllers
 {
     public class TestController : Controller
     {
+        //Added comments on method name
         public IActionResult Index()
         {
             return View();
@@ -17,6 +18,10 @@ namespace WorkFlowTM.WebAPI.Controllers
             int a = 5;
             int b = 10;
 
+            return View();
+        }
+        public IActionResult Method2()
+        {
             return View();
         }
 
