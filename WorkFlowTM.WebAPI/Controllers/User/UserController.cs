@@ -62,7 +62,6 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                         Body = emailBody.Body,
                         Subject = emailBody.Subject
                     };
-                    //await _queueCommunicator.SendAsync(emailCommand);
                     await _emailService.SendEmailAsync(emailCommand);
                     return Ok();
                 }
@@ -102,7 +101,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
 
         [HttpPost("create")]
-        //[Permission(Permission.AddUser)]
+        [Authorize]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userRegisterDTO)
         {
             try
@@ -152,6 +151,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         }
 
         [HttpPut("update")]
+        [Authorize]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDTO userRegisterDTO)
         {
             try
@@ -176,6 +176,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         }
 
         [HttpDelete("delete/{userId}")]
+        [Authorize]
         public async Task<IActionResult> DeleteUser(Guid userId)
         {
             try
@@ -206,9 +207,6 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                 var result = await _userService.SignUpUserAsync(userRegisterDTO);
                 if (result.Succeeded)
                     return Ok();
-                ////db create
-                /////mIGRATION-DB IDENTITY MIGRATION DB TABLE
-                ////TENANTINFO->tb write api  
 
                 string identityErrors = string.Empty;
                 foreach (var item in result.Errors)
@@ -224,12 +222,13 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         }
 
         [HttpPost("Login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] CreateUserDTO userRegisterDTO)
         {
             try
             {
-                AppUser appUser = _mapper.Map<CreateUserDTO, AppUser>(userRegisterDTO);
-                var result = await _userService.LoginAsync(appUser);
+                var user= await _userService.FindByNameAsync(userRegisterDTO.UserName);
+                var result = await _userService.LoginAsync(user,userRegisterDTO.Password);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -244,6 +243,8 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         #region Queries
 
         [HttpGet("get")]
+        [Authorize]
+
         public async Task<IActionResult> GetAllUsers()
         {
             try
@@ -258,6 +259,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         }
 
         [HttpGet("get/{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetUserDetailById(Guid userId)
         {
             try
