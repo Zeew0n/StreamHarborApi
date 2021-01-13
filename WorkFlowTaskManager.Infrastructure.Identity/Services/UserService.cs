@@ -58,42 +58,55 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             }
         }
 
-        public async Task<bool> LoginAsync(AppUser appUser)
+        public async Task<UserLoginResponse> LoginAsync(AppUser appUser, string password)
         {
             try
             {
-                string username = appUser.UserName;
-                string password = appUser.Password;
-                AppUser userName = await FindByUsernameAsync(username);
-
-                if (userName == null)
-                    throw new Exception($"No User Available!.");
-
-                return await LoginUserAsync(appUser);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-
-        public async Task<bool> LoginUserAsync(AppUser appUser)
-        {
-            try
-            {
-                var result = await _userManager.CheckPasswordAsync(appUser, appUser.Password);
-
-
+                var result = await _userManager.CheckPasswordAsync(appUser, password);
                 if (!result)
-                    throw new Exception($"Login Failed!.");
 
-                return result ;
+                return new UserLoginResponse
+                {
+                    Message = "Invalid Password",
+                    IsSuccess = false,
+                };
+
+                //To Generate Token
+                var token = GenerateJWTToken(appUser);
+                string tokenValue = token.Result;
+                return new UserLoginResponse
+                {
+                    Message = tokenValue,
+                    IsSuccess = true
+
+                };
+
+
+                //return await LoginUserAsync(appUser);
             }
             catch (Exception ex)
             {
                 throw;
             }
         }
+
+        //public async Task<UserLoginResponse> LoginUserAsync(AppUser appUser)
+        //{
+        //    try
+        //    {
+        //        var result = await _userManager.CheckPasswordAsync(appUser, appUser.Password);
+        //        //User and TenantLogin Condition Criteria
+
+        //        if (!result)
+        //            throw new Exception($"Login Failed!.");
+
+        //        return result ;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw;
+        //    }
+        //}
 
         public async Task<IdentityResult> CreateUserAsync(AppUser appUser, string role)
         {
@@ -173,7 +186,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                 appUser.TenantId = obj;
             }
 
-            var userResult = await _userManager.CreateAsync(appUser);
+            var userResult = await _userManager.CreateAsync(appUser,appUser.Password);
             return userResult;
         }
 
@@ -415,13 +428,13 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         }
 
         //Generate Token
-        public async Task<string> GenerateJWTToken(AppUser appUser)
+        public async Task<string>GenerateJWTToken(AppUser appUser)
         {
             var user = await _userManager.FindByEmailAsync(appUser.Email);
             var claims = new[]
             {
                 new Claim("Email", user.Email),
-                new Claim(ClaimTypes.NameIdentifier,user.Email),
+                new Claim(ClaimTypes.NameIdentifier,user.UserName),
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:Key"]));

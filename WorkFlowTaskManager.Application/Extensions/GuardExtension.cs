@@ -205,20 +205,8 @@ namespace WorkFlowTaskManager.Application.Extensions
                     throw new ArgumentException($"{firstParameterName} {first} and {secondParameterName} {second} doesn't match");
             }
 
-            /// <summary>
-            /// Throws an <see cref="ArgumentNullException" /> if <see cref="amount" /> is null.
-            /// Throws an <see cref="ArgumentException" /> if <see cref="amount" /> is 0.
-            /// </summary>
-            /// <param name="amount"></param>
-            /// <param name="parameterName"></param>
-            /// <exception cref="ArgumentNullException"></exception>
-            /// <exception cref="ArgumentException"></exception>
-            public static void InvalidAmount(decimal amount, string parameterName)
-            {
-                Null(amount, parameterName);
-                if (amount == 0)
-                    throw new ArgumentException($"Required input {parameterName} was empty.");
-            }
+            
+         
         }
     }
 }

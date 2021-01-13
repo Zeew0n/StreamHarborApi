@@ -15,7 +15,8 @@ namespace WorkFlowTaskManager.Application.Interfaces
     public interface IUserService
     {
         Task<IdentityResult> CreateAsync(AppUser appUser, string role);
-        Task<bool> LoginAsync(AppUser appUser);
+        Task<UserLoginResponse> LoginAsync(AppUser appUser, string password);
+       // Task<UserLoginResponse> LoginUserAsync(AppUser appUser);
 
         Task<IdentityResult> CreateUserAsync(AppUser appUser, string role);
 
