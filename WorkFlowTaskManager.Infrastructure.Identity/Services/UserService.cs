@@ -362,6 +362,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             try
             {
                 //Invalidates any previous codes sent to the user
+                await _unitOfWork.SaveChangesAsync();
                 var result = await _userManager.UpdateSecurityStampAsync(appUser);
                 Uri callBackUri = await SetClientURIWithEncodedToken(appUser, SharedConstants.URIParam);
                 var emailMessage = new EmailDTO
@@ -385,6 +386,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             try
             {
                 //Invalidates any previous codes sent to the user
+                await _unitOfWork.SaveChangesAsync();
                 var result = await _userManager.UpdateSecurityStampAsync(appUser);
                 Uri callBackUri = await SetClientURIWithEncodedTokenResetPassword(appUser, SharedConstants.URIParamReset);
                 var emailMessage = new EmailDTO
