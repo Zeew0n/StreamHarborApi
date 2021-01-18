@@ -41,6 +41,7 @@ namespace WorkFlowTM.WebAPI
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString), ServiceLifetime.Transient);
             services.AddControllers();
+            //Transient
             services.AddCors(options =>
             {
                 options.AddPolicy("BasePolicy",
@@ -74,6 +75,7 @@ namespace WorkFlowTM.WebAPI
                     ValidateIssuerSigningKey = true
                 };
             });
+            services.AddAuthorization();
 
             // Auto Mapper Configurations
             var mapperConfig = new MapperConfiguration(mc =>

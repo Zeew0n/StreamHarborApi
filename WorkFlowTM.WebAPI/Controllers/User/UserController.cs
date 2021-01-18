@@ -1,16 +1,13 @@
 ﻿using AutoMapper;
-
 using WorkFlowTaskManager.Application.DTO.User.RefreshToken;
 using WorkFlowTaskManager.Application.DTO.User.Request;
 using WorkFlowTaskManager.Application.Extensions;
 using WorkFlowTaskManager.Application.Interfaces;
 using WorkFlowTaskManager.Infrastructure.Identity.Helpers;
 using WorkFlowTaskManager.WebAPI.Attributes;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using System;
 using System.Threading.Tasks;
 using WorkFlowTaskManager.Domain.Models.AppUserModels;
@@ -51,11 +48,12 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         {
             try
             {
-
-                AppUser appUser = await _userService.FindByEmailAsync(userRegisterDTO.Email);
-                if (appUser!=null)
+                AppUser appUser = await _userService.FindByEmailAsync(userRegisterDTO.UserName);
+                Guid appuserid = Guid.Parse(appUser.Id.ToString());
+                AppUser appnewUser = await _userService.FindByIdAsync(appuserid);
+                if (appnewUser != null)
                 {
-                    var emailBody = await _userService.GetEmailTokenWithContentResetAsync(appUser);
+                    var emailBody = await _userService.GetEmailTokenWithContentResetAsync(appnewUser);
                     var emailCommand = new EmailDTO
                     {
                         To = emailBody.To,
@@ -257,6 +255,34 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                 return BadRequest(HandleActionResult(ex.Message, StatusCodes.Status400BadRequest));
             }
         }
+
+        /// <summary>
+        /// Verify email token.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("verifyEmailToken")]
+        public async Task<IActionResult> VerifyEmailToken(Guid userId, string token)
+        {
+            try
+            {
+                AppUser appUser = await _userService.FindByIdAsync(userId);
+                token = token.Replace(" ", "%2b");
+                var tokenResult = await _userService.ValidateEmailTokenAsync(appUser, token);
+                if (tokenResult.Succeeded)
+                    return Ok();
+
+                return BadRequest(HandleActionResult("Invalid token", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(HandleActionResult($"Token validation failed. { ex.Message}", StatusCodes.Status400BadRequest));
+            }
+        }
+
 
         [HttpGet("get/{userId}")]
         [Authorize]
