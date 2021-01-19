@@ -1,19 +1,15 @@
 ﻿using AutoMapper;
-using WorkFlowTaskManager.Application.DTO.User.RefreshToken;
-using WorkFlowTaskManager.Application.DTO.User.Request;
-using WorkFlowTaskManager.Application.Extensions;
-using WorkFlowTaskManager.Application.Interfaces;
-using WorkFlowTaskManager.Infrastructure.Identity.Helpers;
-using WorkFlowTaskManager.WebAPI.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using WorkFlowTaskManager.Domain.Models.AppUserModels;
-using WorkFlowTaskManager.Application.Services;
 using WorkFlowTaskManager.Application.DTO.Email;
-using AutoMapper.Configuration;
+using WorkFlowTaskManager.Application.DTO.User.Request;
+using WorkFlowTaskManager.Application.Extensions;
+using WorkFlowTaskManager.Application.Interfaces;
+using WorkFlowTaskManager.Application.Services;
+using WorkFlowTaskManager.Domain.Models.AppUserModels;
 
 namespace WorkFlowTaskManager.WebAPI.Controllers.User
 {
@@ -96,10 +92,32 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
 
 
+        [HttpPut("confirm")]
+        public async Task<IActionResult> ConfirmUser([FromBody] UpdateUserDTO userRegisterDTO)
+        {
+            try
+            {
+
+                Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
+                AppUser User = await _userService.FindByIdAsync(userRegisterDTO.Id);
+                var result = await _userService.ConfirmUserAsync(User, userRegisterDTO.token);
+                if (result.Succeeded)
+                {
+                    return Ok();
+
+                }
+                return BadRequest(HandleActionResult($"Confirm User Failed.", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(HandleActionResult(ex.Message, StatusCodes.Status400BadRequest));
+            }
+        }
+
 
 
         [HttpPost("create")]
-        [Authorize]
+       // [Authorize]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userRegisterDTO)
         {
             try
@@ -127,7 +145,6 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                             Body = emailBody.Body,
                             Subject = emailBody.Subject
                         };
-                        //await _queueCommunicator.SendAsync(emailCommand);
                         await _emailService.SendEmailAsync(emailCommand);
                         return Ok();
                     }
@@ -155,7 +172,8 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             try
             {
 
-
+                Guard.Against.NullOrEmpty(userRegisterDTO.FirstName, nameof(userRegisterDTO.FirstName));
+                Guard.Against.NullOrEmpty(userRegisterDTO.LastName, nameof(userRegisterDTO.LastName));
                 Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
                 AppUser oldUser = await _userService.FindByIdAsync(userRegisterDTO.Id);
                 var result = await _userService.UpdateUserAsync(oldUser, userRegisterDTO);

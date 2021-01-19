@@ -1,13 +1,10 @@
-﻿using WorkFlowTaskManager.Application.DTO.Email;
-using WorkFlowTaskManager.Application.DTO.User.Request;
-using WorkFlowTaskManager.Application.DTO.User.Response;
-using WorkFlowTaskManager.Domain.Models;
-
-using Microsoft.AspNetCore.Identity;
-
+﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using WorkFlowTaskManager.Application.DTO.Email;
+using WorkFlowTaskManager.Application.DTO.User.Request;
+using WorkFlowTaskManager.Application.DTO.User.Response;
 using WorkFlowTaskManager.Domain.Models.AppUserModels;
 
 namespace WorkFlowTaskManager.Application.Interfaces
@@ -47,6 +44,8 @@ namespace WorkFlowTaskManager.Application.Interfaces
         Task<EmailDTO> GetEmailTokenWithContentResetAsync(AppUser appUser);
 
         Task<string> GenerateJWTToken(AppUser user);
+
+        Task<IdentityResult> ConfirmUserAsync(AppUser appUser, string token);
 
     }
 }
