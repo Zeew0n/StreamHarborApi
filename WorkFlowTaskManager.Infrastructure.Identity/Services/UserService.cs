@@ -141,7 +141,8 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             {
                 Guid id = appUser.Id;
                 AppUser user = await FindByIdAsync(id);
-                var  userResult = await _userManager.ResetPasswordAsync(user,token,appUser.Password);
+
+                var  userResult = await _userManager.ResetPasswordAsync(user,DecodeToken(token),appUser.Password);
                 return userResult;
             }
             catch (Exception ex)
@@ -482,7 +483,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         /// <returns></returns>
         private async Task<string> EncodeTokenAsync(AppUser appUser)
         {
-            string token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+            string token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
             byte[] tokenBytes = System.Text.Encoding.UTF8.GetBytes(token);
             return Convert.ToBase64String(tokenBytes);
         }
@@ -494,7 +495,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         /// <returns></returns>
         private async Task<string> EncodePasswordTokenAsync(AppUser appUser)
         {
-            string token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
+            string token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
             byte[] tokenBytes = System.Text.Encoding.UTF8.GetBytes(token);
             return Convert.ToBase64String(tokenBytes);
         }

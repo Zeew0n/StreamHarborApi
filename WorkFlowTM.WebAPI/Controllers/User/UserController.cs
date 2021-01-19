@@ -288,7 +288,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             try
             {
                 AppUser appUser = await _userService.FindByIdAsync(userId);
-                token = token.Replace(" ", "%2b");
+                //token = token.Replace(" ", "%2b");
                 var tokenResult = await _userService.ValidateEmailTokenAsync(appUser, token);
                 if (tokenResult.Succeeded)
                     return Ok();
