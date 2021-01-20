@@ -76,7 +76,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             {
                 Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
                 AppUser User = await _userService.FindByIdAsync(userRegisterDTO.Id);
-                var result = await _userService.ResetPasswordAsync(User,userRegisterDTO.token);
+                var result = await _userService.ResetPasswordAsync(User,userRegisterDTO.token,userRegisterDTO.Password);
                 if (result.Succeeded)
                 {
                     return Ok();
@@ -92,16 +92,16 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
 
 
-        [HttpPut("confirm")]
-        public async Task<IActionResult> ConfirmUser([FromBody] UpdateUserDTO userRegisterDTO)
+        [HttpGet]
+        [Route("confirmUser")]
+        public async Task<IActionResult> ConfirmUser(Guid userId, string token)
         {
             try
-            {
-
-                Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
-                AppUser User = await _userService.FindByIdAsync(userRegisterDTO.Id);
-                var result = await _userService.ConfirmUserAsync(User, userRegisterDTO.token);
-                if (result.Succeeded)
+                    {
+               // Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
+                AppUser User = await _userService.FindByIdAsync(userId);
+                var result = await _userService.ConfirmUserAsync(User, token);
+                if (result)
                 {
                     return Ok();
 
@@ -117,7 +117,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
 
         [HttpPost("create")]
-       // [Authorize]
+        //[Authorize]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userRegisterDTO)
         {
             try
@@ -289,8 +289,8 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             {
                 AppUser appUser = await _userService.FindByIdAsync(userId);
                 //token = token.Replace(" ", "%2b");
-                var tokenResult = await _userService.ValidateEmailTokenAsync(appUser, token);
-                if (tokenResult.Succeeded)
+                var tokenResult = await _userService.ValidateEmailTokenAsync(appUser);
+                if (tokenResult)
                     return Ok();
 
                 return BadRequest(HandleActionResult("Invalid token", StatusCodes.Status400BadRequest));

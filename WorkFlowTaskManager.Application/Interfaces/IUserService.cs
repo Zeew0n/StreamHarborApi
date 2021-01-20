@@ -37,15 +37,18 @@ namespace WorkFlowTaskManager.Application.Interfaces
 
         Task<EmailDTO> GetEmailTokenWithContentAsync(AppUser appUser);
 
-        Task<IdentityResult> ValidateEmailTokenAsync(AppUser appUser, string token);
+        //Task<bool> ValidateEmailTokenAsync(AppUser appUser, string token);
 
-        Task<IdentityResult> ResetPasswordAsync(AppUser appUser, string token);
-        Task<IdentityResult> ResetAsync(AppUser appUser, string token);
+        Task<bool> ValidateEmailTokenAsync(AppUser appUser);
+
+
+        Task<IdentityResult> ResetPasswordAsync(AppUser appUser, string token,string password);
+        Task<IdentityResult> ResetAsync(AppUser appUser, string token,string password);
         Task<EmailDTO> GetEmailTokenWithContentResetAsync(AppUser appUser);
 
         Task<string> GenerateJWTToken(AppUser user);
 
-        Task<IdentityResult> ConfirmUserAsync(AppUser appUser, string token);
+        Task<bool> ConfirmUserAsync(AppUser appUser, string token);
 
     }
 }
