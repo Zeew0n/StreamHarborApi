@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -90,23 +89,6 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             }
         }
 
-        //public async Task<UserLoginResponse> LoginUserAsync(AppUser appUser)
-        //{
-        //    try
-        //    {
-        //        var result = await _userManager.CheckPasswordAsync(appUser, appUser.Password);
-        //        //User and TenantLogin Condition Criteria
-
-        //        if (!result)
-        //            throw new Exception($"Login Failed!.");
-
-        //        return result ;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw;
-        //    }
-        //}
 
         public async Task<IdentityResult> CreateUserAsync(AppUser appUser, string role)
         {
@@ -159,7 +141,50 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             {
                 Guid id = appUser.Id;
                 AppUser user = await FindByIdAsync(id);
-                var  userResult = await _userManager.ResetPasswordAsync(user,token,appUser.Password);
+
+                var  userResult = await _userManager.ResetPasswordAsync(user,DecodeToken(token),appUser.Password);
+                return userResult;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        //Confirm User Email and Reset Password
+
+        public async Task<IdentityResult> ConfirmUserAsync(AppUser appUser, string token)
+        {
+            try
+            {
+                string email = appUser.Email;
+                string userName = appUser.UserName;
+                AppUser oldUserEmailDetail = await FindByEmailAsync(email);
+                AppUser oldUserUsername = await FindByUsernameAsync(email);
+
+                if (oldUserEmailDetail == null)
+                    throw new Exception($"Email not available.");
+
+                if (oldUserUsername == null)
+                    throw new Exception($"Username not available.");
+
+                return await ConfirmAsync(appUser, token);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IdentityResult> ConfirmAsync(AppUser appUser, string token)
+        {
+            try
+            {
+                Guid id = appUser.Id;
+                AppUser user = await FindByIdAsync(id);
+                var userpasswordResult = await _userManager.ResetPasswordAsync(user, token, appUser.Password);
+                var userResult = await _userManager.ConfirmEmailAsync(user, token);
                 return userResult;
             }
             catch (Exception ex)
@@ -458,7 +483,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         /// <returns></returns>
         private async Task<string> EncodeTokenAsync(AppUser appUser)
         {
-            string token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+            string token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
             byte[] tokenBytes = System.Text.Encoding.UTF8.GetBytes(token);
             return Convert.ToBase64String(tokenBytes);
         }
@@ -470,7 +495,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         /// <returns></returns>
         private async Task<string> EncodePasswordTokenAsync(AppUser appUser)
         {
-            string token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
+            string token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
             byte[] tokenBytes = System.Text.Encoding.UTF8.GetBytes(token);
             return Convert.ToBase64String(tokenBytes);
         }
