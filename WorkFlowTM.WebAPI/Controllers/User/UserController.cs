@@ -1,19 +1,15 @@
 ﻿using AutoMapper;
-using WorkFlowTaskManager.Application.DTO.User.RefreshToken;
-using WorkFlowTaskManager.Application.DTO.User.Request;
-using WorkFlowTaskManager.Application.Extensions;
-using WorkFlowTaskManager.Application.Interfaces;
-using WorkFlowTaskManager.Infrastructure.Identity.Helpers;
-using WorkFlowTaskManager.WebAPI.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using WorkFlowTaskManager.Domain.Models.AppUserModels;
-using WorkFlowTaskManager.Application.Services;
 using WorkFlowTaskManager.Application.DTO.Email;
-using AutoMapper.Configuration;
+using WorkFlowTaskManager.Application.DTO.User.Request;
+using WorkFlowTaskManager.Application.Extensions;
+using WorkFlowTaskManager.Application.Interfaces;
+using WorkFlowTaskManager.Application.Services;
+using WorkFlowTaskManager.Domain.Models.AppUserModels;
 
 namespace WorkFlowTaskManager.WebAPI.Controllers.User
 {
@@ -241,7 +237,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         #region Queries
 
         [HttpGet("get")]
-        [Authorize]
+        //[Authorize]
 
         public async Task<IActionResult> GetAllUsers()
         {
