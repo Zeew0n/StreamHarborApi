@@ -259,7 +259,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         #region Queries
 
         [HttpGet("get")]
-        [Authorize]
+        //[Authorize]
 
         public async Task<IActionResult> GetAllUsers()
         {
