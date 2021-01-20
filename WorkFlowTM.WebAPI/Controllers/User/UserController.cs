@@ -76,7 +76,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             {
                 Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
                 AppUser User = await _userService.FindByIdAsync(userRegisterDTO.Id);
-                var result = await _userService.ResetPasswordAsync(User,userRegisterDTO.token);
+                var result = await _userService.ResetPasswordAsync(User,userRegisterDTO.token,userRegisterDTO.Password);
                 if (result.Succeeded)
                 {
                     return Ok();
@@ -289,8 +289,8 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             {
                 AppUser appUser = await _userService.FindByIdAsync(userId);
                 //token = token.Replace(" ", "%2b");
-                var tokenResult = await _userService.ValidateEmailTokenAsync(appUser, token);
-                if (tokenResult.Succeeded)
+                var tokenResult = await _userService.ValidateEmailTokenAsync(appUser);
+                if (tokenResult)
                     return Ok();
 
                 return BadRequest(HandleActionResult("Invalid token", StatusCodes.Status400BadRequest));
