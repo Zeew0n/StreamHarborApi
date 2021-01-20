@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -90,23 +89,6 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             }
         }
 
-        //public async Task<UserLoginResponse> LoginUserAsync(AppUser appUser)
-        //{
-        //    try
-        //    {
-        //        var result = await _userManager.CheckPasswordAsync(appUser, appUser.Password);
-        //        //User and TenantLogin Condition Criteria
-
-        //        if (!result)
-        //            throw new Exception($"Login Failed!.");
-
-        //        return result ;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw;
-        //    }
-        //}
 
         public async Task<IdentityResult> CreateUserAsync(AppUser appUser, string role)
         {
@@ -130,7 +112,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             }
         }
 
-        public async Task<IdentityResult> ResetPasswordAsync(AppUser appUser,string token)
+        public async Task<IdentityResult> ResetPasswordAsync(AppUser appUser,string token,string password)
         {
             try
             {
@@ -145,7 +127,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                 if (oldUserUsername == null)
                     throw new Exception($"Username not available.");
 
-                return await ResetAsync(appUser,token);
+                return await ResetAsync(appUser,token,password);
             }
             catch (Exception ex)
             {
@@ -153,14 +135,56 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             }
         }
 
-        public async Task<IdentityResult> ResetAsync(AppUser appUser,string token)
+        public async Task<IdentityResult> ResetAsync(AppUser appUser,string token,string password)
         {
             try
             {
                 Guid id = appUser.Id;
                 AppUser user = await FindByIdAsync(id);
-                var  userResult = await _userManager.ResetPasswordAsync(user,token,appUser.Password);
+
+                var  userResult = await _userManager.ResetPasswordAsync(user,DecodeToken(token),password);
                 return userResult;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        //Confirm User Email and Reset Password
+
+        public async Task<bool> ConfirmUserAsync(AppUser appUser, string token)
+        {
+            try
+            {
+                string email = appUser.Email;
+                string userName = appUser.UserName;
+                AppUser oldUserEmailDetail = await FindByEmailAsync(email);
+                AppUser oldUserUsername = await FindByUsernameAsync(email);
+
+                if (oldUserEmailDetail == null)
+                    throw new Exception($"Email not available.");
+
+                if (oldUserUsername == null)
+                    throw new Exception($"Username not available.");
+
+                return await ConfirmAsync(appUser, token);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<bool> ConfirmAsync(AppUser appUser, string token)
+        {
+            try
+            {
+                Guid id = appUser.Id;
+                AppUser user = await FindByIdAsync(id);
+                var userResult = await _userManager.ConfirmEmailAsync(user, DecodeToken(token));
+                return true;
             }
             catch (Exception ex)
             {
@@ -482,11 +506,12 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         /// <param name="appUser"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<IdentityResult> ValidateEmailTokenAsync(AppUser appUser, string token)
+        public async Task<bool> ValidateEmailTokenAsync(AppUser appUser)
         {
+
             try
             {
-                return await _userManager.ConfirmEmailAsync(appUser, DecodeToken(token));
+                return await _userManager.IsEmailConfirmedAsync(appUser);
             }
             catch (Exception ex)
             {
@@ -494,6 +519,9 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                 throw;
             }
         }
+
+
+
 
         /// <summary>
         /// Generates token for email and encodes into base64.

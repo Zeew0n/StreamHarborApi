@@ -76,7 +76,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             {
                 Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
                 AppUser User = await _userService.FindByIdAsync(userRegisterDTO.Id);
-                var result = await _userService.ResetPasswordAsync(User,userRegisterDTO.token);
+                var result = await _userService.ResetPasswordAsync(User,userRegisterDTO.token,userRegisterDTO.Password);
                 if (result.Succeeded)
                 {
                     return Ok();
@@ -92,10 +92,32 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
 
 
+        [HttpGet]
+        [Route("confirmUser")]
+        public async Task<IActionResult> ConfirmUser(Guid userId, string token)
+        {
+            try
+                    {
+               // Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
+                AppUser User = await _userService.FindByIdAsync(userId);
+                var result = await _userService.ConfirmUserAsync(User, token);
+                if (result)
+                {
+                    return Ok();
+
+                }
+                return BadRequest(HandleActionResult($"Confirm User Failed.", StatusCodes.Status400BadRequest));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(HandleActionResult(ex.Message, StatusCodes.Status400BadRequest));
+            }
+        }
+
 
 
         [HttpPost("create")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userRegisterDTO)
         {
             try
@@ -123,7 +145,6 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                             Body = emailBody.Body,
                             Subject = emailBody.Subject
                         };
-                        //await _queueCommunicator.SendAsync(emailCommand);
                         await _emailService.SendEmailAsync(emailCommand);
                         return Ok();
                     }
@@ -151,7 +172,8 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             try
             {
 
-
+                Guard.Against.NullOrEmpty(userRegisterDTO.FirstName, nameof(userRegisterDTO.FirstName));
+                Guard.Against.NullOrEmpty(userRegisterDTO.LastName, nameof(userRegisterDTO.LastName));
                 Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
                 AppUser oldUser = await _userService.FindByIdAsync(userRegisterDTO.Id);
                 var result = await _userService.UpdateUserAsync(oldUser, userRegisterDTO);
@@ -266,9 +288,9 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             try
             {
                 AppUser appUser = await _userService.FindByIdAsync(userId);
-                token = token.Replace(" ", "%2b");
-                var tokenResult = await _userService.ValidateEmailTokenAsync(appUser, token);
-                if (tokenResult.Succeeded)
+                //token = token.Replace(" ", "%2b");
+                var tokenResult = await _userService.ValidateEmailTokenAsync(appUser);
+                if (tokenResult)
                     return Ok();
 
                 return BadRequest(HandleActionResult("Invalid token", StatusCodes.Status400BadRequest));
