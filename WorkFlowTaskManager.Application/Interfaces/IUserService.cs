@@ -48,7 +48,7 @@ namespace WorkFlowTaskManager.Application.Interfaces
 
         Task<string> GenerateJWTToken(AppUser user);
 
-        Task<IdentityResult> ConfirmUserAsync(AppUser appUser, string token);
+        Task<bool> ConfirmUserAsync(AppUser appUser, string token);
 
     }
 }

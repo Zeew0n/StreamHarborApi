@@ -154,7 +154,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
 
         //Confirm User Email and Reset Password
 
-        public async Task<IdentityResult> ConfirmUserAsync(AppUser appUser, string token)
+        public async Task<bool> ConfirmUserAsync(AppUser appUser, string token)
         {
             try
             {
@@ -177,15 +177,14 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             }
         }
 
-        public async Task<IdentityResult> ConfirmAsync(AppUser appUser, string token)
+        public async Task<bool> ConfirmAsync(AppUser appUser, string token)
         {
             try
             {
                 Guid id = appUser.Id;
                 AppUser user = await FindByIdAsync(id);
-                var userpasswordResult = await _userManager.ResetPasswordAsync(user, token, appUser.Password);
-                var userResult = await _userManager.ConfirmEmailAsync(user, token);
-                return userResult;
+                var userResult = await _userManager.ConfirmEmailAsync(user, DecodeToken(token));
+                return true;
             }
             catch (Exception ex)
             {
@@ -520,6 +519,9 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                 throw;
             }
         }
+
+
+
 
         /// <summary>
         /// Generates token for email and encodes into base64.
