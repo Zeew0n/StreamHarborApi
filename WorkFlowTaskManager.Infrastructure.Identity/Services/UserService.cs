@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -306,20 +305,20 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         public async Task<IReadOnlyCollection<UserListDTO>> GetAllUsers()
         {
             var result = await (from user in _unitOfWork.UserRepository.GetAllIgnoreQueryFilter()
-                                join userRole in _unitOfWork.UserRoleRepository.GetAll() on user.Id equals userRole.UserId
-                                join role in _unitOfWork.RoleRepository.GetAll() on userRole.RoleId equals role.Id
-                                select new
-                                {
-                                    user.Id,
-                                    user.UserName,
-                                    user.Email,
-                                    user.FirstName,
-                                    user.LastName,
-                                    user.CreatedDate,
-                                    Role = role.Name,
-                                    EmailConfirmmed = user.EmailConfirmed,
-                                    IsDeleted = EF.Property<bool>(user, "IsDeleted")
-                                }).OrderByDescending(q => q.CreatedDate).ToListAsync();
+                //join userRole in _unitOfWork.UserRoleRepository.GetAll() on user.Id equals userRole.UserId
+                //join role in _unitOfWork.RoleRepository.GetAll() on userRole.RoleId equals role.Id
+                select new
+                {
+                    user.Id,
+                    user.UserName,
+                    user.Email,
+                    user.FirstName,
+                    user.LastName,
+                    user.CreatedDate,
+                    //Role = role.Name,
+                    EmailConfirmmed = user.EmailConfirmed,
+                    IsDeleted = EF.Property<bool>(user, "IsDeleted")
+                }).OrderByDescending(q => q.CreatedDate).ToListAsync();
             return result.Select(user => new UserListDTO
             {
                 Id = user.Id,
@@ -327,7 +326,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Role = user.Role,
+                //Role = user.Role,
                 Status = user.IsDeleted ? UserConstants.Deleted : (user.EmailConfirmmed ? UserConstants.Active : UserConstants.InActive)
             }).ToList();
         }
