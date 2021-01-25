@@ -74,17 +74,17 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         private async Task<string> GenerateEncodedToken(ClaimsIdentity identity)
         {
             string email = identity.Claims.Single(c => c.Type == ClaimTypes.Email).Value;
-            string isAdmin = identity.Claims.Single(c => c.Type == AuthConstants.IsAdmin).Value;
+            //string isAdmin = identity.Claims.Single(c => c.Type == AuthConstants.IsAdmin).Value;
             var claimList = new List<Claim>() {
                      identity.FindFirst(AuthConstants.JwtId),
                      new Claim(JwtRegisteredClaimNames.Sub, email),
                      new Claim(JwtRegisteredClaimNames.Email, email),
                      identity.FindFirst(ClaimTypes.Name),
                      identity.FindFirst(AuthConstants.UserName),
-                     new Claim(AuthConstants.IsAdmin, isAdmin, ClaimValueTypes.Boolean),
-                     identity.FindFirst(AuthConstants.RoleId),
-                     identity.FindFirst(ClaimTypes.Role),
-                     identity.FindFirst(AuthConstants.Permissions),
+                     //new Claim(AuthConstants.IsAdmin, isAdmin, ClaimValueTypes.Boolean),
+                     //identity.FindFirst(AuthConstants.RoleId),
+                     //identity.FindFirst(ClaimTypes.Role),
+                     //identity.FindFirst(AuthConstants.Permissions),
                      new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
                      new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
                 };
@@ -108,13 +108,13 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         private IEnumerable<Claim> AddToClaimList(ClaimDTO claimDTO)
         {
             yield return new Claim(AuthConstants.JwtId, claimDTO.Id.ToString());
-            yield return new Claim(AuthConstants.IsAdmin, claimDTO.IsAdmin.ToString(), ClaimValueTypes.Boolean);
+            //yield return new Claim(AuthConstants.IsAdmin, claimDTO.IsAdmin.ToString(), ClaimValueTypes.Boolean);
             yield return new Claim(ClaimTypes.Email, claimDTO.Email);
-            yield return new Claim(ClaimTypes.Name, claimDTO.FullName);
-            yield return new Claim(AuthConstants.UserName, claimDTO.UserName);
-            yield return new Claim(AuthConstants.RoleId, claimDTO.RoleId.ToString());
-            yield return new Claim(ClaimTypes.Role, claimDTO.Role);
-            yield return new Claim(AuthConstants.Permissions, claimDTO.Permissions);
+            //yield return new Claim(ClaimTypes.Name, claimDTO.FullName);
+            //yield return new Claim(AuthConstants.UserName, claimDTO.UserName);
+            //yield return new Claim(AuthConstants.RoleId, claimDTO.RoleId.ToString());
+            //yield return new Claim(ClaimTypes.Role, claimDTO.Role);
+            //yield return new Claim(AuthConstants.Permissions, claimDTO.Permissions);
         }
 
         /// <returns>Date converted to seconds since Unix epoch (Jan 1, 1970, midnight UTC).</returns>
@@ -134,7 +134,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             if (options.ValidFor <= TimeSpan.Zero)
                 throw new ArgumentException("Must be a non-zero TimeSpan.", nameof(JwtIssuerOptions.ValidFor));
 
-            if (options.SigningCredentials != null)
+            if (options.SigningCredentials == null)
                 throw new ArgumentNullException(nameof(JwtIssuerOptions.SigningCredentials));
 
             if (options.JtiGenerator == null) throw new ArgumentNullException(nameof(JwtIssuerOptions.JtiGenerator));

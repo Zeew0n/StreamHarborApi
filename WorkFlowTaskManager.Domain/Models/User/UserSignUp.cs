@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace WorkFlowTaskManager.Domain.Models.User
+﻿namespace WorkFlowTaskManager.Domain.Models.User
 {
     public class UserSignUp: BaseEntity
     {

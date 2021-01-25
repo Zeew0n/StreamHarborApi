@@ -2,9 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkFlowTaskManager.Application.Services.CurrentUserService;
@@ -52,7 +50,9 @@ namespace WorkFlowTaskManager.Infrastructure.Persistance.Data
 
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<UserSignUp>(ConfigureUserSignup);
+            modelBuilder.Entity<InternalCompany>(ConfigureInternalCompany);
             modelBuilder.Entity<RolePermissionMapping>(ConfigureRolePermissionMapping);
+
         }
 
         private void ConfigureRolePermissionMapping(EntityTypeBuilder<RolePermissionMapping> builder)
@@ -70,12 +70,19 @@ namespace WorkFlowTaskManager.Infrastructure.Persistance.Data
             builder.HasKey(q => q.Id);
         }
 
+        private void ConfigureInternalCompany(EntityTypeBuilder<InternalCompany> builder)
+        {
+            builder.HasKey(q => q.Id);
+        }
+
 
         //Entities (in A -> Z)
         public DbSet<UserSignUp> UserSignup { get; set; }
         public DbSet<RolePermission> RolePermission { get; set; }
+        public DbSet<RefreshToken> RefreshToken { get; set; }
 
         public DbSet<RolePermissionMapping> RolePermissionMapping { get; set; }
+        public DbSet<InternalCompany> InternalCompany { get; set; }
 
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

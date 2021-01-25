@@ -1,10 +1,8 @@
-using WorkFlowTaskManager.Domain.Models;
-using WorkFlowTaskManager.Domain.Models.AppUserModels;
-
 using Microsoft.AspNetCore.Identity;
-
 using System;
 using System.Threading.Tasks;
+using WorkFlowTaskManager.Domain.Models;
+using WorkFlowTaskManager.Domain.Models.AppUserModels;
 
 namespace WorkFlowTaskManager.Application.Interfaces
 {
@@ -17,6 +15,7 @@ namespace WorkFlowTaskManager.Application.Interfaces
         IRepository<RolePermission> RolePermissionRepository { get; }
         IRepository<RolePermissionMapping> RolePermissionMappingRepository { get; }
         IRepository<RefreshToken> RefreshTokenRepository { get; }
+        IRepository<InternalCompany> InternalCompanyRepository { get; }
 
         int SaveChanges();
 

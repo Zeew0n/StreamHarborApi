@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,21 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         }
 
         #region Registration
+
+        [HttpPost("authenticate")]
+        [AllowAnonymous]
+        public async Task<IActionResult> AuthenticateAsync([FromBody] AuthenticationRequestDTO request)
+        {
+            try
+            {
+                var result = await _authService.AuthenticateAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(HandleActionResult(ex.Message, StatusCodes.Status400BadRequest));
+            }
+        }
 
         #region Commands
 
@@ -117,7 +133,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
 
         [HttpPost("create")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userRegisterDTO)
         {
             try
@@ -213,7 +229,11 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         }
 
         [HttpPost("signup")]
-        [AllowAnonymous]
+        //[AllowAnonymous]
+        //[Authorize]
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
         public async Task<IActionResult> SignUpUser([FromBody] SignUpUserDTO userRegisterDTO)
         {
             try
