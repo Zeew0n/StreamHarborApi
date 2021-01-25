@@ -1,17 +1,13 @@
-﻿using WorkFlowTaskManager.Infrastructure.Identity.Helpers;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-
 using Newtonsoft.Json;
-
 using Serilog;
-
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using WorkFlowTaskManager.Infrastructure.Identity.Helpers;
 
 namespace WorkFlowTaskManager.WebAPI.Attributes
 {

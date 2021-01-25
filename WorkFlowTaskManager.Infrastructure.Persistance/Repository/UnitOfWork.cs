@@ -22,6 +22,8 @@ namespace WorkFlowTaskManager.Infrastructure.Persistence.Repository
 
         private IRepository<RefreshToken> _refreshTokenRepository;
 
+        private IRepository<InternalCompany> _internalCompanyRepository;
+
         public UnitOfWork(ApplicationDbContext dbContext) => _dbContext = dbContext ?? throw new ArgumentNullException("Context was not supplied");
 
         public IRepository<AppUser> UserRepository =>
@@ -36,6 +38,8 @@ namespace WorkFlowTaskManager.Infrastructure.Persistence.Repository
         public IRepository<IdentityUserClaim<Guid>> UserClaimRepository =>
             _userClaimRepository ?? (_userClaimRepository = new Repository<IdentityUserClaim<Guid>>(_dbContext));
 
+        public IRepository<InternalCompany> InternalCompanyRepository =>
+_internalCompanyRepository ?? (_internalCompanyRepository = new Repository<InternalCompany>(_dbContext));
 
         public IRepository<RolePermission> RolePermissionRepository =>
             _rolePermissionRepository ?? (_rolePermissionRepository = new Repository<RolePermission>(_dbContext));

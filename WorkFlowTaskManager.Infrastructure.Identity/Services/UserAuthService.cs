@@ -38,9 +38,9 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             {
                 var claimsIdentity = await GetClaimsIdentityAsync(request.UserName, request.Password);
                 var jwtResponse = await _jwtService.GenerateJwt(claimsIdentity);
-                await GenerateRefreshToken(claimsIdentity);
-                jwtResponse.RefreshToken = claimsIdentity.RefreshToken.Token;
-                jwtResponse.RefreshTokenExpiry = claimsIdentity.RefreshToken.ExpiryDate;
+                //await GenerateRefreshToken(claimsIdentity);
+                //jwtResponse.RefreshToken = claimsIdentity.RefreshToken.Token;
+               // jwtResponse.RefreshTokenExpiry = claimsIdentity.RefreshToken.ExpiryDate;
                 return jwtResponse;
             }
             catch (Exception ex)
@@ -97,10 +97,10 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                     if (userDetails == null)
                         throw new Exception($"You must be assigned a role before you login.");
 
-                    if (!userDetails.IsAdmin && userDetails.Permissions.Count == 0)
-                        throw new Exception($"You must be assigned a permission before you login.");
+                    //if (!userDetails.IsAdmin && userDetails.Permissions.Count == 0)
+                    //    throw new Exception($"You must be assigned a permission before you login.");
 
-                    return await VerifyUserNamePasswordAsync(password, appUser, userDetails);
+                    return await VerifyUserNamePasswordAsync(password, appUser,userDetails);
                 }
 
                 throw new Exception("You must confirm your email before you log in.");
@@ -127,12 +127,12 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                 {
                     Id = userToVerify.Id,
                     UserName = userDetails.UserName,
-                    FullName = userDetails.FullName,
+                   // FullName = userDetails.FullName,
                     Email = userToVerify.Email,
-                    RoleId = userDetails.RoleId,
-                    Role = userDetails.RoleName,
-                    IsAdmin = userDetails.IsAdmin,
-                    Permissions = JsonConvert.SerializeObject(userDetails.Permissions)
+                   // RoleId = userDetails.RoleId,
+                   // Role = userDetails.RoleName,
+                    //IsAdmin = userDetails.IsAdmin,
+                   // Permissions = JsonConvert.SerializeObject(userDetails.Permissions)
                 };
                 userDetails.ClaimsIdentity = await Task.FromResult(_jwtService.GenerateClaimsIdentity(claimDTO));
                 return userDetails;
@@ -146,12 +146,8 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             var userDetails = await (from user in _unitOfWork.UserRepository.GetAll()
                                      join userRole in _unitOfWork.UserRoleRepository.GetAll() on user.Id equals userRole.UserId
                                      join role in _unitOfWork.RoleRepository.GetAll() on userRole.RoleId equals role.Id
-                                     join rolePer in _unitOfWork.RolePermissionMappingRepository.GetAll() on role.Id equals rolePer.RoleId into rp
-                                     from rolePermission in rp.DefaultIfEmpty()
-                                     join perm in _unitOfWork.RolePermissionRepository.GetAll() on rolePermission.PermissionId equals perm.Id into per
-                                     from permission in per.DefaultIfEmpty()
-                                     join refToken in _unitOfWork.RefreshTokenRepository.GetAll() on user.Id equals refToken.UserId into rt
-                                     from refreshToken in rt.DefaultIfEmpty()
+                                     //join refToken in _unitOfWork.RefreshTokenRepository.GetAll() on user.Id equals refToken.UserId into rt
+                                     //from refreshToken in rt.DefaultIfEmpty()
                                      where user.Id == userId
                                      select new
                                      {
@@ -162,8 +158,8 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                                          user.IsAdmin,
                                          RoleId = role.Id,
                                          RoleName = role.Name,
-                                         Permission = permission == null ? null : permission.Slug,
-                                         RefreshToken = refreshToken
+                                         Permission = "",
+                                         RefreshToken = ""
                                      }).OrderBy(t => t.Permission).ToListAsync();
             return userDetails.GroupBy(t => t.RoleId)
                  .Select(q =>
@@ -178,7 +174,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                          IsAdmin = q.Select(t => t.IsAdmin).FirstOrDefault(),
                          RoleId = q.Key,
                          RoleName = q.Select(t => t.RoleName).FirstOrDefault(),
-                         Permissions = q.Where(t => t.Permission != null).Select(t => t.Permission).ToList(),
+                         //Permissions = q.Where(t => t.Permission != null).Select(t => t.Permission).ToList(),
                          //RefreshToken = refreshToken?.MapToRefreshTokenResponseDTO()
                      };
                  }).FirstOrDefault();

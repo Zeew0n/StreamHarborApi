@@ -16,6 +16,7 @@ using WorkFlowTaskManager.Application.Interfaces;
 using WorkFlowTaskManager.Application.MappingProfile;
 using WorkFlowTaskManager.Application.Services;
 using WorkFlowTaskManager.Application.Services.CurrentUserService;
+using WorkFlowTaskManager.Domain.Models;
 using WorkFlowTaskManager.Domain.Models.AppUserModels;
 using WorkFlowTaskManager.Infrastructure.Identity.Services;
 using WorkFlowTaskManager.Infrastructure.Persistance.Data;
@@ -27,6 +28,10 @@ namespace WorkFlowTM.WebAPI
 {
     public class Startup
     {
+
+        private const string SecretKey = "iNivDmHLpUA223sqsfhqGbMRdRj1PVkH";
+        private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -41,28 +46,42 @@ namespace WorkFlowTM.WebAPI
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString), ServiceLifetime.Transient);
             services.AddControllers();
-            //Transient
+
+            var origins = Configuration["CorsUrl"].Split(",");
             services.AddCors(options =>
             {
                 options.AddPolicy("BasePolicy",
                 builder =>
                 {
                     builder
-                    .AllowAnyMethod()
+
                     .AllowAnyOrigin()
+                     .AllowAnyMethod()
                     .AllowAnyHeader();
+                   
                 });
+
             });
+            
             services.AddIdentity<AppUser, AppRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
-            //JWT
+
+            // Configure JwtIssuerOptions
+            services.Configure<JwtIssuerOptions>(options =>
+            {
+                options.Issuer = Configuration["AuthSettings:Issuer"];
+                options.Audience = Configuration["AuthSettings:Audience"];
+                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+            });
             services.AddAuthentication(auth =>
             {
+
+
                 auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
-
+                options.ClaimsIssuer = Configuration["AuthSettings:Issuer"];
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
 
@@ -71,9 +90,11 @@ namespace WorkFlowTM.WebAPI
                     ValidAudience = Configuration["AuthSettings:Audience"],
                     ValidIssuer = Configuration["AuthSettings:Issuer"],
                     RequireExpirationTime = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AuthSettings:Key"])),
-                    ValidateIssuerSigningKey = true
+                    IssuerSigningKey = _signingKey,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
                 };
+                options.SaveToken = true;
             });
             services.AddAuthorization();
 
@@ -110,7 +131,6 @@ namespace WorkFlowTM.WebAPI
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
             app.UseSwagger(c =>
             {
                 c.SerializeAsV2 = true;
@@ -124,6 +144,7 @@ namespace WorkFlowTM.WebAPI
 
             app.UseAuthorization();
             app.UseCors("BasePolicy");
+            app.UseHttpsRedirection();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
