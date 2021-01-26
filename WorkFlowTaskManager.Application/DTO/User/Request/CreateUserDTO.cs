@@ -19,6 +19,7 @@ namespace WorkFlowTaskManager.Application.DTO.User.Request
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
         public string SubDomain { get; set; }
+        public string RoleName { get; set; }
         public Guid RoleId { get; set; }
         public Guid TenantId { get; set; }
 

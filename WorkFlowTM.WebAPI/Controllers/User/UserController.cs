@@ -133,7 +133,8 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
 
         [HttpPost("create")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userRegisterDTO)
         {
             try
@@ -144,14 +145,16 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                 Guard.Against.InvalidEmail(userRegisterDTO.Email, nameof(userRegisterDTO.Email));
                 Guard.Against.InvalidEmail(userRegisterDTO.ConfirmEmail, nameof(userRegisterDTO.ConfirmEmail));
                 Guard.Against.InvalidCompare(userRegisterDTO.Email, userRegisterDTO.ConfirmEmail, nameof(userRegisterDTO.Email), nameof(userRegisterDTO.ConfirmEmail));
-                Guard.Against.NullOrEmpty(roleId, nameof(roleId));
+                //Guard.Against.NullOrEmpty(roleId, nameof(roleId));
                 AppUser appUser = _mapper.Map<CreateUserDTO, AppUser>(userRegisterDTO);
                 Guard.Against.InvalidPhone(userRegisterDTO.PhoneNumber);
-                string role = await _roleServices.GetRoleNameByIdAsync(roleId);
-                var result = await _userService.CreateAsync(appUser, role);
+               // string role = await _roleServices.GetRoleNameByIdAsync(roleId);
+               //default role removed for test purpose
+
+                var result = await _userService.CreateAsync(appUser, userRegisterDTO.RoleName);
                 if (result.Succeeded)
                 {
-                    var roleResult = await _roleServices.AddToRoleAsync(appUser, role);
+                    var roleResult = await _roleServices.AddToRoleAsync(appUser, userRegisterDTO.RoleName);
                     if (roleResult.Succeeded)
                     {
                         var emailBody = await _userService.GetEmailTokenWithContentAsync(appUser);
@@ -182,7 +185,8 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         }
 
         [HttpPut("update")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDTO userRegisterDTO)
         {
             try
@@ -208,13 +212,14 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         }
 
         [HttpDelete("delete/{userId}")]
-        [Authorize]
-        public async Task<IActionResult> DeleteUser(Guid userId)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> DeleteUser(string userId)
         {
             try
             {
-                AppUser oldUser = await _userService.FindByIdAsync(userId);
-                bool result = await _userService.DeleteUserAsync(oldUser, userId);
+                Guid userIdd = Guid.Parse(userId);
+                AppUser oldUser = await _userService.FindByIdAsync(userIdd);
+                bool result = await _userService.DeleteUserAsync(oldUser, userIdd);
                 if (result)
                 {
                     return NoContent();
@@ -278,11 +283,11 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
         #region Queries
 
-        [HttpGet("get")]
+        [HttpGet("listallusers")]
         //[Authorize]
-
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetAllUsers()
-        {
+       {
             try
             {
                 var result = await _userService.GetAllUsers();
@@ -323,7 +328,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
 
         [HttpGet("get/{userId}")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetUserDetailById(Guid userId)
         {
             try
