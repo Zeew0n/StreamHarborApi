@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+using WorkFlowTaskManager.Domain.Models.Tenant;
 
 namespace WorkFlowTaskManager.Domain.Models.AppUserModels
 {
@@ -32,7 +31,9 @@ namespace WorkFlowTaskManager.Domain.Models.AppUserModels
         public string ContactName { get; set; }
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
-        public string SubDomain { get; set; }
-        public Guid TenantId { get; set; }
+
+        //[ForeignKey("TenantId")]
+        //public Guid? TenantId { get; set; }
+        public TenantInformation TenantInformation  { get; set; }
     }
 }

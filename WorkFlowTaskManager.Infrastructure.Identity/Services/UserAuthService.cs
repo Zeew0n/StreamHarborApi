@@ -46,7 +46,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             catch (Exception ex)
             {
                 //Log.Error("Error: {ErrorMessage},{ErrorDetails}", ex.Message, ex.StackTrace);
-                throw;
+                throw ex;
             }
         }
 

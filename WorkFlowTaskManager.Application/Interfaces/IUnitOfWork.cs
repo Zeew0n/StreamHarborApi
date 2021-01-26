@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using WorkFlowTaskManager.Domain.Models;
 using WorkFlowTaskManager.Domain.Models.AppUserModels;
+using WorkFlowTaskManager.Domain.Models.Tenant;
 
 namespace WorkFlowTaskManager.Application.Interfaces
 {
@@ -10,6 +11,8 @@ namespace WorkFlowTaskManager.Application.Interfaces
     {
         IRepository<AppUser> UserRepository { get; }
         IRepository<AppRole> RoleRepository { get; }
+
+        IRepository<TenantInformation> TenantRepository { get; }
         IRepository<IdentityUserRole<Guid>> UserRoleRepository { get; }
         IRepository<IdentityUserClaim<Guid>> UserClaimRepository { get; }
         IRepository<RolePermission> RolePermissionRepository { get; }

@@ -4,6 +4,7 @@ namespace WorkFlowTaskManager.Domain.Models.AppUserModels
 {
     public class RefreshToken : BaseEntity
     {
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Token { get; private set; }
         public DateTime ExpiryDate { get; private set; }
         public bool IsExpired { get; private set; }

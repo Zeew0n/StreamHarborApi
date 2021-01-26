@@ -5,6 +5,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20210126081130_AddTenantClass.cs" />
+    <Compile Remove="Migrations\20210126081130_AddTenantClass.Designer.cs" />
+    <Compile Remove="Migrations\20210126081635_AddTenantClass.cs" />
+    <Compile Remove="Migrations\20210126081635_AddTenantClass.Designer.cs" />
+    <Compile Remove="Migrations\20210126081900_AddTenantClass.cs" />
+    <Compile Remove="Migrations\20210126081900_AddTenantClass.Designer.cs" />
+    <Compile Remove="Migrations\20210126081921_AddTenantTable.cs" />
+    <Compile Remove="Migrations\20210126081921_AddTenantTable.Designer.cs" />
+    <Compile Remove="Migrations\20210126082038_AddTenantTable.cs" />
+    <Compile Remove="Migrations\20210126082038_AddTenantTable.Designer.cs" />
+    <Compile Remove="Migrations\20210126085358_AddTenantTable.cs" />
+    <Compile Remove="Migrations\20210126085358_AddTenantTable.Designer.cs" />
+    <Compile Remove="Migrations\20210126085748_AddTenantTable.cs" />
+    <Compile Remove="Migrations\20210126085748_AddTenantTable.Designer.cs" />
+    <Compile Remove="Migrations\20210126090131_AddTenantTable.cs" />
+    <Compile Remove="Migrations\20210126090131_AddTenantTable.Designer.cs" />
+    <Compile Remove="Migrations\20210126090343_AddTenantTable.cs" />
+    <Compile Remove="Migrations\20210126090343_AddTenantTable.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Data\Seed\" />
   </ItemGroup>
 

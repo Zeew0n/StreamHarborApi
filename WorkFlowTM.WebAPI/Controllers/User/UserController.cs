@@ -49,7 +49,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             }
             catch (Exception ex)
             {
-                return BadRequest(HandleActionResult(ex.Message, StatusCodes.Status400BadRequest));
+                return BadRequest(HandleActionResult($"Username or Password is Invalid!", StatusCodes.Status400BadRequest));
             }
         }
 
@@ -61,6 +61,12 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
             try
             {
                 AppUser appUser = await _userService.FindByEmailAsync(userRegisterDTO.UserName);
+
+                if (appUser == null)
+                {
+                    return BadRequest(HandleActionResult($"Email Not Found!", StatusCodes.Status400BadRequest));
+                }
+
                 Guid appuserid = Guid.Parse(appUser.Id.ToString());
                 AppUser appnewUser = await _userService.FindByIdAsync(appuserid);
                 if (appnewUser != null)
