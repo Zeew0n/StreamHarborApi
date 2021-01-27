@@ -11,8 +11,9 @@ namespace WorkFlowTaskManager.Application.MappingProfile
     {
         public MappingProfile()
         {
-            CreateMap<AppRole, RoleDto>().ReverseMap();
-            CreateMap<RoleDto, AppRole>().ReverseMap();
+            CreateMap<AppRole, RoleDto>()
+                .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Name)).ReverseMap();
             CreateMap<CreateUserDTO, AppUser>().ReverseMap();
             CreateMap<AppUser, CreateUserDTO>().ReverseMap();
             CreateMap<TenantInformation, TenantDto>().ReverseMap();
