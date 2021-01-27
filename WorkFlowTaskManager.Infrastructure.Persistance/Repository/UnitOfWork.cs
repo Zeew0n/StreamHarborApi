@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using WorkFlowTaskManager.Application.Interfaces;
 using WorkFlowTaskManager.Domain.Models;
 using WorkFlowTaskManager.Domain.Models.AppUserModels;
+using WorkFlowTaskManager.Domain.Models.Tenant;
 using WorkFlowTaskManager.Infrastructure.Persistance.Data;
 
 namespace WorkFlowTaskManager.Infrastructure.Persistence.Repository
@@ -24,6 +25,9 @@ namespace WorkFlowTaskManager.Infrastructure.Persistence.Repository
 
         private IRepository<InternalCompany> _internalCompanyRepository;
 
+        private IRepository<TenantInformation> _tenantRepository;
+
+
         public UnitOfWork(ApplicationDbContext dbContext) => _dbContext = dbContext ?? throw new ArgumentNullException("Context was not supplied");
 
         public IRepository<AppUser> UserRepository =>
@@ -40,6 +44,10 @@ namespace WorkFlowTaskManager.Infrastructure.Persistence.Repository
 
         public IRepository<InternalCompany> InternalCompanyRepository =>
 _internalCompanyRepository ?? (_internalCompanyRepository = new Repository<InternalCompany>(_dbContext));
+
+
+        public IRepository<TenantInformation>TenantRepository =>
+_tenantRepository ?? (_tenantRepository = new Repository<TenantInformation>(_dbContext));
 
         public IRepository<RolePermission> RolePermissionRepository =>
             _rolePermissionRepository ?? (_rolePermissionRepository = new Repository<RolePermission>(_dbContext));

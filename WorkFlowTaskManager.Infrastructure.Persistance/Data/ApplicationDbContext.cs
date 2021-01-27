@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using WorkFlowTaskManager.Application.Services.CurrentUserService;
 using WorkFlowTaskManager.Domain.Models;
 using WorkFlowTaskManager.Domain.Models.AppUserModels;
-using WorkFlowTaskManager.Domain.Models.User;
+using WorkFlowTaskManager.Domain.Models.Tenant;
 using WorkFlowTaskManager.Infrastructure.Persistence.Extensions;
 
 namespace WorkFlowTaskManager.Infrastructure.Persistance.Data
@@ -49,8 +49,11 @@ namespace WorkFlowTaskManager.Infrastructure.Persistance.Data
             }
 
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<UserSignUp>(ConfigureUserSignup);
-            modelBuilder.Entity<InternalCompany>(ConfigureInternalCompany);
+            //modelBuilder.Entity<UserSignUp>(ConfigureUserSignup);
+
+            modelBuilder.Entity<TenantInformation>(ConfigureTenant);
+
+            //modelBuilder.Entity<InternalCompany>(ConfigureInternalCompany);
             modelBuilder.Entity<RolePermissionMapping>(ConfigureRolePermissionMapping);
 
         }
@@ -65,24 +68,39 @@ namespace WorkFlowTaskManager.Infrastructure.Persistance.Data
                    .WithMany(q => q.RolePermissions)
                    .HasForeignKey(q => q.PermissionId);
         }
-        private void ConfigureUserSignup(EntityTypeBuilder<UserSignUp> builder)
+        //private void ConfigureUserSignup(EntityTypeBuilder<UserSignUp> builder)
+        //{
+        //    builder.HasKey(q => q.Id);
+        //}
+
+        private void ConfigureTenant(EntityTypeBuilder<TenantInformation> builder)
         {
-            builder.HasKey(q => q.Id);
+            builder.HasKey(q => q.TenantId);
+            builder.HasMany(q => q.AppUsers);
         }
 
-        private void ConfigureInternalCompany(EntityTypeBuilder<InternalCompany> builder)
+        private void ConfigureAppUser(EntityTypeBuilder<AppUser> builder)
         {
             builder.HasKey(q => q.Id);
+            builder.HasOne(q => q.TenantInformation).WithMany(q=>q.AppUsers);
         }
+
+        //private void ConfigureInternalCompany(EntityTypeBuilder<InternalCompany> builder)
+        //{
+        //    builder.HasKey(q => q.Id);
+        //}
 
 
         //Entities (in A -> Z)
-        public DbSet<UserSignUp> UserSignup { get; set; }
+        //public DbSet<UserSignUp> UserSignup { get; set; }
+
+        public DbSet<TenantInformation> TenantInformation { get; set; }
+
         public DbSet<RolePermission> RolePermission { get; set; }
-        public DbSet<RefreshToken> RefreshToken { get; set; }
+       // public DbSet<RefreshToken> RefreshToken { get; set; }
 
         public DbSet<RolePermissionMapping> RolePermissionMapping { get; set; }
-        public DbSet<InternalCompany> InternalCompany { get; set; }
+      //  public DbSet<InternalCompany> InternalCompany { get; set; }
 
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

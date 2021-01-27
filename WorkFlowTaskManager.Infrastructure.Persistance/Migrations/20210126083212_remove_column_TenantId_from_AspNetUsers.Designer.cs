@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkFlowTaskManager.Infrastructure.Persistance.Data;
 
 namespace WorkFlowTaskManager.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210126083212_remove_column_TenantId_from_AspNetUsers")]
+    partial class remove_column_TenantId_from_AspNetUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -248,9 +250,6 @@ namespace WorkFlowTaskManager.Infrastructure.Persistance.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("TenantInformationTenantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -273,8 +272,6 @@ namespace WorkFlowTaskManager.Infrastructure.Persistance.Migrations
                         .IsUnique()
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("TenantInformationTenantId");
 
                     b.ToTable("AspNetUsers");
                 });
@@ -321,38 +318,6 @@ namespace WorkFlowTaskManager.Infrastructure.Persistance.Migrations
                     b.HasIndex("PermissionId");
 
                     b.ToTable("RolePermissionMapping");
-                });
-
-            modelBuilder.Entity("WorkFlowTaskManager.Domain.Models.Tenant.TenantInformation", b =>
-                {
-                    b.Property<Guid>("TenantId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("OrganizationEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OrganizationName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SubDomain")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("TenantId");
-
-                    b.ToTable("TenantInformation");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -404,14 +369,6 @@ namespace WorkFlowTaskManager.Infrastructure.Persistance.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("WorkFlowTaskManager.Domain.Models.AppUserModels.AppUser", b =>
-                {
-                    b.HasOne("WorkFlowTaskManager.Domain.Models.Tenant.TenantInformation", "TenantInformation")
-                        .WithMany("AppUsers")
-                        .HasForeignKey("TenantInformationTenantId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("WorkFlowTaskManager.Domain.Models.RolePermissionMapping", b =>

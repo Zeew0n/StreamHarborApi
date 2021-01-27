@@ -16,6 +16,7 @@ using WorkFlowTaskManager.Application.Interfaces;
 using WorkFlowTaskManager.Application.MappingProfile;
 using WorkFlowTaskManager.Application.Services;
 using WorkFlowTaskManager.Application.Services.CurrentUserService;
+using WorkFlowTaskManager.Application.Services.TenantService;
 using WorkFlowTaskManager.Domain.Models;
 using WorkFlowTaskManager.Domain.Models.AppUserModels;
 using WorkFlowTaskManager.Infrastructure.Identity.Services;
@@ -110,6 +111,7 @@ namespace WorkFlowTM.WebAPI
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IUserAuthService, UserAuthService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ITenantService, TenantService>();
             services.AddTransient<IRoleService, RoleServices>();
             services.AddTransient<IRoleServices,RoleService>();
             services.AddTransient<IJwtService, JwtService>();

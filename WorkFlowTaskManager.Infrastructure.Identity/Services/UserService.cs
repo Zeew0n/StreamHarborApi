@@ -207,7 +207,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             if (!string.IsNullOrEmpty(email))
             {
                 appUser.IsAdmin = role.ToUpper() == DesignationAndRoleConstants.Admin;
-                appUser.TenantId = obj;
+                //appUser.TenantId = obj;
             }
 
             var userResult = await _userManager.CreateAsync(appUser,appUser.Password);
