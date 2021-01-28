@@ -13,11 +13,11 @@ namespace WorkFlowTaskManager.Application.Interfaces
 
         //Task<IdentityResult> CreateUserAsync(AppUser appUser, string role);
 
-        //Task<IdentityResult> UpdateUserAsync(AppUser oldUser, UpdateUserDTO userRegiterDTO);
+        //Task<IdentityResult> UpdateTenantAsync(AppUser oldUser, UpdateUserDTO userRegiterDTO);
 
         //Task<IdentityResult> SignUpUserAsync(SignUpUserDTO signUpUserDTO);
 
-        //Task<bool> DeleteUserAsync(AppUser userDetail, Guid id);
+        //Task<bool> DeleteTenantAsync(AppUser userDetail, Guid id);
 
         Task<IEnumerable<TenantDto>> GetAllTenants();
 

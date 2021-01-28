@@ -205,7 +205,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
                 Guard.Against.NullOrEmpty(userRegisterDTO.FirstName, nameof(userRegisterDTO.FirstName));
                 Guard.Against.NullOrEmpty(userRegisterDTO.LastName, nameof(userRegisterDTO.LastName));
-                Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
+                //Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
                 AppUser oldUser = await _userService.FindByIdAsync(userRegisterDTO.Id);
                 var result = await _userService.UpdateUserAsync(oldUser, userRegisterDTO);
                 if (result.Succeeded)
