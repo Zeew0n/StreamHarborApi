@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using WorkFlowTaskManager.Application.DTO.User.Response;
 using WorkFlowTaskManager.Application.Interfaces;
 using WorkFlowTaskManager.Domain.Models;
+using WorkFlowTaskManager.Domain.Models.AppUserModels;
 using WorkFlowTaskManager.Infrastructure.Identity.Helpers;
 
 namespace WorkFlowTaskManager.Infrastructure.Identity.Services
@@ -17,9 +19,17 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
     {
         private readonly JwtIssuerOptions _jwtOptions;
 
-        public JwtService(IOptions<JwtIssuerOptions> jwtOptions)
+        private readonly IRoleServices _roleServices;
+        private readonly IUserService _userService;
+        private readonly UserManager<AppUser> _userManager;
+
+
+        public JwtService(UserManager<AppUser> userManager,IOptions<JwtIssuerOptions> jwtOptions, IRoleServices roleServices, IUserService userService)
         {
             _jwtOptions = jwtOptions.Value;
+            _roleServices = roleServices;
+            _userManager = userManager;
+            _userService = userService;
             ThrowIfInvalidOptions(_jwtOptions);
         }
 
@@ -52,9 +62,14 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             try
             {
                 string authToken = await GenerateEncodedToken(userDetails.ClaimsIdentity);
+                var appuser = await _userManager.FindByIdAsync(userDetails.Id.ToString());
+                List<string> roles = (List<string>)await _userManager.GetRolesAsync(appuser);
+                string tenantId = await _userService.GetTenantId(appuser);
                 return new AuthenticationResponseDTO
                 {
                     JWToken = authToken,
+                    RoleName = roles[0],
+                    TenantId = tenantId,
                     ExpiresIn = (int)_jwtOptions.ValidFor.TotalSeconds
                 };
             }
