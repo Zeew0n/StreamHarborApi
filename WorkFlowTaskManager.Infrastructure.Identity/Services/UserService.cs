@@ -481,6 +481,15 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             return tokenAsString;
         }
 
+
+        //Generate Token
+        public async Task<string> GetTenantId(AppUser appUser)
+        {
+            var user = await _userManager.FindByIdAsync(appUser.Id.ToString());
+            string tenantId = user.TenantInformationTenantId.ToString();
+            return tenantId;
+        }
+
         /// <summary>
         /// Generates token for email and encodes into base64.
         /// </summary>
