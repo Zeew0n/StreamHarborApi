@@ -32,8 +32,11 @@ namespace WorkFlowTaskManager.Domain.Models.AppUserModels
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
 
-        //[ForeignKey("TenantId")]
-        //public Guid? TenantId { get; set; }
+
+        
+
+        [ForeignKey("TenantInformationTenantId")]
+        public Guid? TenantInformationTenantId { get; set; }
         public TenantInformation TenantInformation  { get; set; }
     }
 }

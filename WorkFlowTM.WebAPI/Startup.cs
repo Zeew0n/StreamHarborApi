@@ -45,7 +45,7 @@ namespace WorkFlowTM.WebAPI
         {
             string connectionString =  Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString), ServiceLifetime.Transient);
+            options.UseSqlServer(connectionString).EnableSensitiveDataLogging(), ServiceLifetime.Transient);
             services.AddControllers();
 
             var origins = Configuration["CorsUrl"].Split(",");

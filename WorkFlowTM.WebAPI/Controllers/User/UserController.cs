@@ -154,16 +154,20 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                 //Guard.Against.NullOrEmpty(roleId, nameof(roleId));
                 AppUser appUser = _mapper.Map<CreateUserDTO, AppUser>(userRegisterDTO);
                 Guard.Against.InvalidPhone(userRegisterDTO.PhoneNumber);
-               // string role = await _roleServices.GetRoleNameByIdAsync(roleId);
+                string role = await _roleServices.GetRoleNameByIdAsync(roleId);
                //default role removed for test purpose
 
-                var result = await _userService.CreateAsync(appUser, userRegisterDTO.RoleName);
+                var result = await _userService.CreateAsync(appUser, role);
                 if (result.Succeeded)
                 {
-                    var roleResult = await _roleServices.AddToRoleAsync(appUser, userRegisterDTO.RoleName);
+
+                    var id1 = appUser.Id;
+                    var user = await _userService.FindByIdAsync(appUser.Id);
+
+                    var roleResult = await _roleServices.AddToRoleAsync(user,role );
                     if (roleResult.Succeeded)
                     {
-                        var emailBody = await _userService.GetEmailTokenWithContentAsync(appUser);
+                        var emailBody = await _userService.GetEmailTokenWithContentAsync(user);
                         var emailCommand = new EmailDTO
                         {
                             To = emailBody.To,
@@ -171,7 +175,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                             Subject = emailBody.Subject
                         };
                         await _emailService.SendEmailAsync(emailCommand);
-                        return Ok();
+                        return Ok(user);
                     }
 
                     return BadRequest(HandleActionResult($"User registration failed.", StatusCodes.Status400BadRequest));
@@ -184,6 +188,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                 }
                 return BadRequest(HandleActionResult($"User registration failed. { identityErrors }", StatusCodes.Status400BadRequest));
             }
+            
             catch (Exception ex)
             {
                 return BadRequest(HandleActionResult(ex.Message, StatusCodes.Status400BadRequest));
@@ -200,7 +205,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
                 Guard.Against.NullOrEmpty(userRegisterDTO.FirstName, nameof(userRegisterDTO.FirstName));
                 Guard.Against.NullOrEmpty(userRegisterDTO.LastName, nameof(userRegisterDTO.LastName));
-                Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
+                //Guard.Against.InvalidPasswordCompare(userRegisterDTO.Password, userRegisterDTO.ConfirmPassword, nameof(userRegisterDTO.Password), nameof(userRegisterDTO.ConfirmPassword));
                 AppUser oldUser = await _userService.FindByIdAsync(userRegisterDTO.Id);
                 var result = await _userService.UpdateUserAsync(oldUser, userRegisterDTO);
                 if (result.Succeeded)

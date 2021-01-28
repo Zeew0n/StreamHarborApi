@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -25,13 +26,15 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
         public UserService(UserManager<AppUser> userManager, IUnitOfWork unitOfWork,
-            IConfiguration configuration)
+            IConfiguration configuration,IMapper mapper)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _mapper = mapper;
         }
 
         #region Command Methods
@@ -219,12 +222,14 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             try
             {
 
-                string username = userRegiterDTO.UserName;
-                AppUser oldUserName = await FindByUsernameAsync(username);
-                    if (oldUserName != null)
-                        throw new Exception($"DuplicateUsername: Username {username} is already taken.");
-
-                    return await EditUserAsync(oldUser, userRegiterDTO);
+                //string username = userRegiterDTO.UserName;
+                //AppUser oldUserName = await FindByUsernameAsync(username);
+                //    if (oldUserName != null)
+                //  throw new Exception($"DuplicateUsername: Username {username} is already taken.");
+                   // _mapper.Map<AppUser,UserRegisterDTO>(userRegiterDTO)
+                     var appUser = _mapper.Map<AppUser>(userRegiterDTO);
+                     var userResult = await _userManager.UpdateAsync(appUser);
+                    return userResult;
 
             }
             catch (Exception ex)
@@ -233,13 +238,12 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             }
         }
 
-        private async Task<IdentityResult> EditUserAsync(AppUser oldUser, UpdateUserDTO userRegiterDTO)
-        {
-            oldUser.UserName = userRegiterDTO.UserName.ToLower();
-            oldUser.Password = userRegiterDTO.Password;
-            var userResult = await _userManager.UpdateAsync(oldUser);
-            return userResult;
-        }
+        //private async Task<IdentityResult> EditUserAsync(AppUser oldUser, UpdateUserDTO userRegiterDTO)
+        //{
+            
+        //    var userResult = await _userManager.UpdateAsync(oldUser);
+        //    return userResult;
+        //}
 
         public async Task<IdentityResult> SignUpUserAsync(SignUpUserDTO signUpUserDTO)
         {
@@ -344,7 +348,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                     user.PhoneNumber,
                     EmailConfirmmed = user.EmailConfirmed,
                     IsDeleted = EF.Property<bool>(user, "IsDeleted")
-                }).OrderByDescending(q => q.CreatedDate).ToListAsync();
+                }).Where(x=>!x.IsDeleted).OrderByDescending(q => q.CreatedDate).ToListAsync();
             return result.Select(user => new UserListDTO
             {
                 Id = user.Id,

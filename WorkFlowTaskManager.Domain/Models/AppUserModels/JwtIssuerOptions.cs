@@ -19,7 +19,7 @@ namespace WorkFlowTaskManager.Domain.Models
 
         public DateTime IssuedAt => DateTime.UtcNow;
 
-        public TimeSpan ValidFor { get; set; } = TimeSpan.FromMinutes(15);
+        public TimeSpan ValidFor { get; set; } = TimeSpan.FromMinutes(60);
 
         public Func<Task<string>> JtiGenerator => () => Task.FromResult(Guid.NewGuid().ToString());
 
