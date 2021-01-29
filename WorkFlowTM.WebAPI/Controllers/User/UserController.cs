@@ -38,10 +38,40 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
 
         #region Registration
 
+        [HttpPost("authenticatetenant")]
+        [AllowAnonymous]
+        public async Task<IActionResult> AuthenticateTenantAsync([FromBody] AuthenticationRequestDTO request)
+        {
+            try
+            {
+                AppUser appUser = await _userService.FindByEmailAsync(request.UserName);
+                if (appUser == null)
+                {
+                    return BadRequest(HandleActionResult($"User Not Found!", StatusCodes.Status400BadRequest));
+
+                }
+                if(appUser.TenantInformationTenantId!=request.TenantId)
+                {
+                    return BadRequest(HandleActionResult($"Tenant User Not Found!", StatusCodes.Status400BadRequest));
+
+                }
+                var result = await _authService.AuthenticateTenantAsync(request);
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(HandleActionResult($"Username or Password is Invalid!", StatusCodes.Status400BadRequest));
+            }
+        }
+
+
         [HttpPost("authenticate")]
         [AllowAnonymous]
         public async Task<IActionResult> AuthenticateAsync([FromBody] AuthenticationRequestDTO request)
         {
+
+
             try
             {
                 var result = await _authService.AuthenticateAsync(request);
@@ -52,6 +82,7 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                 return BadRequest(HandleActionResult($"Username or Password is Invalid!", StatusCodes.Status400BadRequest));
             }
         }
+
 
         #region Commands
 
@@ -152,10 +183,23 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                 Guard.Against.InvalidEmail(userRegisterDTO.ConfirmEmail, nameof(userRegisterDTO.ConfirmEmail));
                 Guard.Against.InvalidCompare(userRegisterDTO.Email, userRegisterDTO.ConfirmEmail, nameof(userRegisterDTO.Email), nameof(userRegisterDTO.ConfirmEmail));
                 //Guard.Against.NullOrEmpty(roleId, nameof(roleId));
-                AppUser appUser = _mapper.Map<CreateUserDTO, AppUser>(userRegisterDTO);
+               
                 Guard.Against.InvalidPhone(userRegisterDTO.PhoneNumber);
                 string role = await _roleServices.GetRoleNameByIdAsync(roleId);
-               //default role removed for test purpose
+                //default role removed for test purpose
+                AppUser appUser = _mapper.Map<CreateUserDTO, AppUser>(userRegisterDTO);
+                if (role=="SuperAdmin")
+                {
+                    appUser.IsSuperAdmin = true;
+
+                }
+                if(role=="Admin")
+                {
+                    appUser.IsAdmin = true;
+
+                }
+
+                
 
                 var result = await _userService.CreateAsync(appUser, role);
                 if (result.Succeeded)
@@ -297,11 +341,11 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
         [HttpGet("listallusers")]
         //[Authorize]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers(string tenantId)
        {
             try
             {
-                var result = await _userService.GetAllUsers();
+                var result = await _userService.GetAllUsers(tenantId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -309,6 +353,28 @@ namespace WorkFlowTaskManager.WebAPI.Controllers.User
                 return BadRequest(HandleActionResult(ex.Message, StatusCodes.Status400BadRequest));
             }
         }
+
+
+        #endregion Commands
+
+        #region Queries
+
+        [HttpGet("listalladmins")]
+        //[Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetAllAdmins()
+        {
+            try
+            {
+                var result = await _userService.GetAllAdmins();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(HandleActionResult(ex.Message, StatusCodes.Status400BadRequest));
+            }
+        }
+
 
         /// <summary>
         /// Verify email token.

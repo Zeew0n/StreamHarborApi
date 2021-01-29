@@ -50,6 +50,26 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
             }
         }
 
+
+        public async Task<AuthenticationResponseDTO> AuthenticateTenantAsync(AuthenticationRequestDTO request)
+        {
+            try
+            {
+                var claimsIdentity = await GetClaimsIdentityAsync(request.UserName, request.Password);
+                var jwtResponse = await _jwtService.GenerateJwt(claimsIdentity);
+                //await GenerateRefreshToken(claimsIdentity);
+                //jwtResponse.RefreshToken = claimsIdentity.RefreshToken.Token;
+                // jwtResponse.RefreshTokenExpiry = claimsIdentity.RefreshToken.ExpiryDate;
+                return jwtResponse;
+            }
+            catch (Exception ex)
+            {
+                //Log.Error("Error: {ErrorMessage},{ErrorDetails}", ex.Message, ex.StackTrace);
+                throw ex;
+            }
+        }
+
+
         private async Task GenerateRefreshToken(AppUserDTO userDetails)
         {
             var currentRefreshToken = userDetails.RefreshToken;

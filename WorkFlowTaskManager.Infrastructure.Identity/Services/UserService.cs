@@ -205,7 +205,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         {
             string email = appUser.Email;
             //For TenantId
-            Guid obj = Guid.NewGuid();
+           // Guid obj = Guid.NewGuid();
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -331,8 +331,9 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
         /// <returns></returns>
         public async Task<AppUser> FindByIdAsync(Guid id) => await _userManager.FindByIdAsync(id.ToString());
 
-        public async Task<IReadOnlyCollection<UserListDTO>> GetAllUsers()
+        public async Task<IReadOnlyCollection<UserListDTO>> GetAllUsers(string tenantId)
         {
+            Guid tenantID = Guid.Parse(tenantId);
             var result = await (from user in _unitOfWork.UserRepository.GetAllIgnoreQueryFilter()
                 join userRole in _unitOfWork.UserRoleRepository.GetAll() on user.Id equals userRole.UserId
                 join role in _unitOfWork.RoleRepository.GetAll() on userRole.RoleId equals role.Id
@@ -347,8 +348,9 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                     Role = role.Name,
                     user.PhoneNumber,
                     EmailConfirmmed = user.EmailConfirmed,
+                    user.TenantInformationTenantId,
                     IsDeleted = EF.Property<bool>(user, "IsDeleted")
-                }).Where(x=>!x.IsDeleted).OrderByDescending(q => q.CreatedDate).ToListAsync();
+                }).Where(x=>!x.IsDeleted).Where(x=>x.TenantInformationTenantId==tenantID).OrderByDescending(q => q.CreatedDate).ToListAsync();
             return result.Select(user => new UserListDTO
             {
                 Id = user.Id,
@@ -361,6 +363,39 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Services
                 Status = user.IsDeleted ? UserConstants.Deleted : (user.EmailConfirmmed ? UserConstants.Active : UserConstants.InActive)
             }).ToList();
         }
+
+        public async Task<IReadOnlyCollection<UserListDTO>> GetAllAdmins()
+        {
+            var result = await (from user in _unitOfWork.UserRepository.GetAllIgnoreQueryFilter()
+                                join userRole in _unitOfWork.UserRoleRepository.GetAll() on user.Id equals userRole.UserId
+                                join role in _unitOfWork.RoleRepository.GetAll() on userRole.RoleId equals role.Id
+                                select new
+                                {
+                                    user.Id,
+                                    user.UserName,
+                                    user.Email,
+                                    user.FirstName,
+                                    user.LastName,
+                                    user.CreatedDate,
+                                    Role = role.Name,
+                                    user.PhoneNumber,
+                                    EmailConfirmmed = user.EmailConfirmed,
+                                    user.IsAdmin,
+                                    IsDeleted = EF.Property<bool>(user, "IsDeleted")
+                                }).Where(x => !x.IsDeleted).Where(x=>x.IsAdmin==true).OrderByDescending(q => q.CreatedDate).ToListAsync();
+            return result.Select(user => new UserListDTO
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Role = user.Role,
+                PhoneNumber = user.PhoneNumber,
+                Status = user.IsDeleted ? UserConstants.Deleted : (user.EmailConfirmmed ? UserConstants.Active : UserConstants.InActive)
+            }).ToList();
+        }
+
 
         public async Task<UserDetailsDTO> GetUserDetailById(Guid userId)
         {

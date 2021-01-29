@@ -58,7 +58,7 @@ namespace WorkFlowTM.WebAPI.Controllers.Tenant
         }
 
         [HttpGet("getall")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+       // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
         public async Task<IActionResult> GetAllTenants()
         {

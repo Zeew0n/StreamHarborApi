@@ -23,7 +23,9 @@ namespace WorkFlowTaskManager.Application.Interfaces
 
         Task<bool> DeleteUserAsync(AppUser userDetail, Guid id);
 
-        Task<IReadOnlyCollection<UserListDTO>> GetAllUsers();
+        Task<IReadOnlyCollection<UserListDTO>> GetAllUsers(string tenantId);
+
+        Task<IReadOnlyCollection<UserListDTO>> GetAllAdmins();
 
         Task<UserDetailsDTO> GetUserDetailById(Guid userId);
 
