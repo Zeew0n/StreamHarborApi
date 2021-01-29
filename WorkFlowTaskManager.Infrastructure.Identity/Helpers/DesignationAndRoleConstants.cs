@@ -21,6 +21,7 @@ namespace WorkFlowTaskManager.Infrastructure.Identity.Helpers
     public class DesignationAndRoleConstants
     {
         public const string Admin = "ADMIN";
+        public const string SuperAdmin = "SUPERADMIN";
         public const string MarketingManager = "MARKETINGMANAGER";
         public const string MarketingAssociate = "MARKETINGASSOCIATE";
         public const string Reader = "READER";
